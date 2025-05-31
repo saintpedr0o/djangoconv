@@ -1,0 +1,32 @@
+{% extends "converter/base.html" %}
+
+{% block title %}Select file format{% endblock %}
+
+{% block content %}
+
+<form method="post" id="convert-form">
+    {% csrf_token %}
+    {{ form.input_format.label_tag }} {{ form.input_format }}
+    <br>
+    {{ form.output_format.label_tag }} {{ form.output_format }}
+    <br>
+    <button type="submit">Select</button>
+</form>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $('#id_input_format').change(function() {
+        var inputFormat = $(this).val();
+        $.getJSON('{% url "get_target_formats" %}', { input_format: inputFormat }, function(data) {
+            let outputSelect = $('#id_output_format');
+            outputSelect.empty();
+            data.choices.forEach(function(choice) {
+                let val = choice[0], label = choice[1];
+                outputSelect.append($('<option></option>').attr('value', val).text(label));
+            });
+        });
+    });
+</script>
+
+{% endblock %}
+

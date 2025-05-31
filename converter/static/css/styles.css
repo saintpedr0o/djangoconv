@@ -1,0 +1,85 @@
+/* Общие стили */
+body {
+    font-family: Arial, sans-serif;
+    background: #f9f9f9;
+    color: #333;
+    margin: 0;
+    padding: 0;
+    line-height: 1.6;
+}
+
+/* Хедер и навигация */
+header {
+    background-color: #552d63;
+    padding: 15px 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+nav a {
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 1.1rem;
+    transition: color 0.3s ease;
+}
+
+nav a:hover {
+    color: #ffcc00;
+}
+
+/* Основной контент */
+main {
+    max-width: 900px;
+    margin: 40px auto;
+    padding: 0 20px;
+    background: white;
+    box-shadow: 0 0 10px rgba(0,0,0,0.05);
+    border-radius: 6px;
+}
+
+/* Футер */
+footer {
+    text-align: center;
+    padding: 20px 0;
+    font-size: 0.9rem;
+    color: #666;
+    border-top: 1px solid #ddd;
+    margin-top: 60px;
+}
+
+/* Для мобильных */
+@media (max-width: 600px) {
+    main {
+        margin: 20px 10px;
+        padding: 15px;
+    }
+    nav a {
+        font-size: 1rem;
+    }
+}
+
+html, body {
+    height: 100%;
+    margin: 0;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh; /* 100% высоты окна */
+}
+
+main {
+    flex: 1; /* занимает всё вертикальное пространство */
+    width: 100%; /* по ширине весь контейнер */
+    padding: 20px;
+    box-sizing: border-box; /* чтобы padding не ломал ширину */
+    background: #fff;
+}
+
+/* Остальное, например футер */
+footer {
+    background: #eee;
+    padding: 20px;
+    text-align: center;
+}

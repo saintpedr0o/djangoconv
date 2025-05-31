@@ -1,0 +1,15 @@
+{% extends "converter/base.html" %}
+
+{% block title %}Convert to {{output_format}}{% endblock %}
+
+{% block content %}
+
+<h3>Convert your {{input_format}} file to {{output_format}}</h3>
+<hr>
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Convert</button>
+</form>
+
+{%endblock%}
