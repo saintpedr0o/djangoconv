@@ -4,20 +4,29 @@
 
 {% block content %}
 
-<form method="post" id="convert-form">
+<form method="post" id="convert-form" class="convert-form">
     {% csrf_token %}
-    {{ form.input_format.label_tag }} {{ form.input_format }}
-    <br>
-    {{ form.output_format.label_tag }} {{ form.output_format }}
-    <br>
-    <button type="submit">Select</button>
+    <div class="form-row">
+        <div class="form-group">
+            {{ form.input_format.label_tag }}
+            {{ form.input_format }}
+        </div>
+        <div class="form-group">
+            {{ form.output_format.label_tag }}
+            {{ form.output_format }}
+        </div>
+    </div>
+    
+    <div class="button-wrapper">
+        <button type="submit" class="convert-button">Select</button>
+    </div>
 </form>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
     $('#id_input_format').change(function() {
         var inputFormat = $(this).val();
-        $.getJSON('{% url "get_target_formats" %}', { input_format: inputFormat }, function(data) {
+        $.getJSON('{% url "converter:get_target_formats" %}', { input_format: inputFormat }, function(data) {
             let outputSelect = $('#id_output_format');
             outputSelect.empty();
             data.choices.forEach(function(choice) {

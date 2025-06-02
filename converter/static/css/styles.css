@@ -1,14 +1,17 @@
-/* Общие стили */
-body {
+/* Base styles */
+html, body {
+    height: 100%;
+    margin: 0;
     font-family: Arial, sans-serif;
     background: #f9f9f9;
     color: #333;
-    margin: 0;
-    padding: 0;
     line-height: 1.6;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    box-sizing: border-box;
 }
 
-/* Хедер и навигация */
 header {
     background-color: #552d63;
     padding: 15px 20px;
@@ -27,17 +30,19 @@ nav a:hover {
     color: #ffcc00;
 }
 
-/* Основной контент */
+/* Main content */
 main {
+    flex: 1;
+    width: 100%;
     max-width: 900px;
-    margin: 40px auto;
-    padding: 0 20px;
+    margin: 0 auto;
+    padding: 40px 20px;
     background: white;
     box-shadow: 0 0 10px rgba(0,0,0,0.05);
     border-radius: 6px;
 }
 
-/* Футер */
+/* Footer */
 footer {
     text-align: center;
     padding: 20px 0;
@@ -45,41 +50,174 @@ footer {
     color: #666;
     border-top: 1px solid #ddd;
     margin-top: 60px;
+    background: #eee;
 }
 
-/* Для мобильных */
+/* Forms */
+label {
+    font-weight: bold;
+    color: #552d63;
+    margin-bottom: 6px;
+    display: block;
+}
+
+input[type="file"],
+select,
+input[type="text"],
+input[type="email"],
+input[type="number"],
+textarea {
+    width: 100%;
+    padding: 10px;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: #fefefe;
+    box-sizing: border-box;
+}
+
+/* Headings */
+.convert-heading {
+    font-size: 1.5rem;
+    color: #552d63;
+    margin-bottom: 20px;
+    font-weight: bold;
+    text-align: center;
+}
+
+/* Form layout */
+.convert-form, .upload-form {
+    margin-top: 20px;
+}
+
+.form-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    margin-bottom: 20px;
+}
+
+.form-group {
+    flex: 1;
+    min-width: 200px;
+}
+
+/* File upload */
+.file-upload-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.custom-file-button {
+    position: relative;
+    display: inline-block;
+    overflow: hidden;
+    background-color: #552d63;
+    color: white;
+    font-weight: bold;
+    padding: 12px 24px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    text-align: center;
+    max-width: 300px;
+    width: 100%;
+}
+
+.custom-file-button:hover {
+    background-color: #6e3f7b;
+}
+
+.custom-file-button input[type="file"] {
+    position: absolute;
+    left: 0;
+    top: 0;
+    opacity: 0;
+    cursor: pointer;
+    width: 100%;
+    height: 100%;
+}
+
+.file-label {
+    pointer-events: none;
+    display: inline-block;
+}
+
+/* File selected checkmark */
+.file-selected-checkmark {
+    display: none;
+    color: #4caf50;
+    margin-left: 10px;
+    font-size: 1.2rem;
+    user-select: none;
+}
+
+/* Buttons */
+.button-wrapper {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.convert-button {
+    padding: 12px 32px;
+    background-color: #552d63;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.convert-button:hover {
+    background-color: #6e3f7b;
+}
+
+/* Responsive */
 @media (max-width: 600px) {
     main {
         margin: 20px 10px;
         padding: 15px;
     }
+
     nav a {
         font-size: 1rem;
     }
 }
 
-html, body {
-    height: 100%;
-    margin: 0;
-}
-
-body {
+/* Main icon link with glowing hover */
+.main-icon-link {
+    color: white;
     display: flex;
-    flex-direction: column;
-    min-height: 100vh; /* 100% высоты окна */
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    transition: text-shadow 0.3s ease;
 }
 
-main {
-    flex: 1; /* занимает всё вертикальное пространство */
-    width: 100%; /* по ширине весь контейнер */
-    padding: 20px;
-    box-sizing: border-box; /* чтобы padding не ломал ширину */
-    background: #fff;
+.main-icon-link:hover {
+    text-shadow:
+        0 0 5px rgb(168, 75, 255),
+        0 0 10px rgb(168, 75, 255),
+        0 0 15px rgb(168, 75, 255),
+        0 0 20px rgb(168, 75, 255);
+    color: white; /* keep text white on hover */
 }
 
-/* Остальное, например футер */
-footer {
-    background: #eee;
-    padding: 20px;
-    text-align: center;
+.nav-icon {
+    height: 44px;
+    width: 44px;
+    border-radius: 50%;
+    object-fit: contain;
+    transition: box-shadow 0.3s ease;
+}
+
+.main-icon-link:hover .nav-icon {
+    box-shadow: 0 0 8px 3px rgb(168, 75, 255);
 }

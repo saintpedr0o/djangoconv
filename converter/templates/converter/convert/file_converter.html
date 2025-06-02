@@ -4,12 +4,43 @@
 
 {% block content %}
 
-<h3>Convert your {{input_format}} file to {{output_format}}</h3>
-<hr>
-<form method="post" enctype="multipart/form-data">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Convert</button>
+<h3 class="convert-heading">Convert your {{ input_format }} file to {{ output_format }}</h3>
+
+<form method="post" enctype="multipart/form-data" class="upload-form">
+  {% csrf_token %}
+  <div class="file-upload-wrapper">
+    <div class="custom-file-button">
+      <span class="file-label">📁 Choose file</span>
+      {{ form.file }}
+      <span class="file-selected-checkmark" aria-hidden="true" style="display: none;">✅</span>
+    </div>
+  </div>
+
+  <div class="button-wrapper">
+    <button type="submit" class="convert-button">Convert</button>
+  </div>
 </form>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const fileInput = document.querySelector('.custom-file-button input[type="file"]');
+  const checkmark = document.querySelector('.file-selected-checkmark');
+  const form = document.querySelector('.upload-form');
+
+  if (!fileInput || !checkmark || !form) return;
+
+  fileInput.addEventListener('change', function () {
+    checkmark.style.display = fileInput.files.length > 0 ? 'inline' : 'none';
+  });
+
+  form.addEventListener('submit', function () {
+    // Short delay to allow file to be sent before reset
+    setTimeout(() => {
+      form.reset();
+      checkmark.style.display = 'none';
+    }, 300);
+  });
+});
+</script>
 
 {%endblock%}
