@@ -1,8 +1,9 @@
 from django.shortcuts import redirect, render
 from django.http import Http404, HttpResponse, JsonResponse
 from django.urls import reverse
-from .utils import get_output_choices, CONVERTER_MAP
+from .utils import get_output_choices, FORMATS_MAP
 from .forms import ConvertForm, FileForm
+import uuid
 
 
 def get_target_formats_view(request):
@@ -26,26 +27,22 @@ def select_format_view(request):
     return render(request, 'converter/convert/select_format.html', {'form': form})
 
 def convert_view(request, input_format, output_format):
-    if input_format not in CONVERTER_MAP or output_format not in CONVERTER_MAP:
-        raise Http404('Bad format!')
+    input_format = input_format.lower()
+    output_format = output_format.lower()
+    entry = FORMATS_MAP.get(input_format)
+    if not entry or output_format not in entry['outputs']:
+        raise Http404(f"Unsupported conversion: {input_format} -> {output_format}")
     
+    converter = entry['converter']
     if request.method == 'POST':
         form = FileForm(request.POST, request.FILES)
         if form.is_valid():
-            cd = form.cleaned_data
-            file = cd['file']
-            
-            converter_class = CONVERTER_MAP[output_format]
-            converter = converter_class()
-            if not converter_class:
-                raise Http404()
-        
+            file = form.cleaned_data['file']
             out_file = converter.convert(file, output_format)
             response = HttpResponse(out_file)
-            filename = file.name.rsplit('.')[0]
+            filename = uuid.uuid4().hex[:10]
             response['Content-Disposition'] = f'attachment; filename="converted_{filename}.{output_format}"'
-            return response   #remade maybe
-
+            return response
     else:
         form = FileForm()
     return render(request, 'converter/convert/file_converter.html', {'form': form, 'input_format': input_format, 'output_format': output_format})

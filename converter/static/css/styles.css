@@ -221,3 +221,9 @@ textarea {
 .main-icon-link:hover .nav-icon {
     box-shadow: 0 0 8px 3px rgb(168, 75, 255);
 }
+
+.error {
+  color: red;
+  font-size: 0.9em;
+  margin-top: 5px;
+}

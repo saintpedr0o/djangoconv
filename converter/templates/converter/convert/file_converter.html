@@ -8,10 +8,28 @@
 
 <form method="post" enctype="multipart/form-data" class="upload-form">
   {% csrf_token %}
+
+  {% if form.non_field_errors %}
+    <div class="form-errors">
+      {% for error in form.non_field_errors %}
+        <p class="error">{{ error }}</p>
+      {% endfor %}
+    </div>
+  {% endif %}
+
   <div class="file-upload-wrapper">
     <div class="custom-file-button">
       <span class="file-label">📁 Choose file</span>
       {{ form.file }}
+
+      {% if form.file.errors %}
+        <div class="field-errors">
+          {% for error in form.file.errors %}
+            <p class="error">{{ error }}</p>
+          {% endfor %}
+        </div>
+      {% endif %}
+
       <span class="file-selected-checkmark" aria-hidden="true" style="display: none;">✅</span>
     </div>
   </div>

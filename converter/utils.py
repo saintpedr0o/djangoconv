@@ -9,13 +9,10 @@ from moviepy.video.io.VideoFileClip import VideoFileClip
 
 
 def get_output_choices(input_format):
-    def to_choices(formats):
-        return [(fmt, fmt.upper()) for fmt in formats]
-
-    for formats_dict in [DOC_FORMATS, IMAGE_FORMATS, AUDIO_FORMATS, VIDEO_FORMATS]:
-        if input_format in formats_dict:
-            return to_choices(formats_dict[input_format])
-
+    input_format = input_format.lower() if input_format else input_format
+    if input_format in FORMATS_MAP:
+        outputs = FORMATS_MAP[input_format]['outputs']
+        return [(fmt, fmt.upper()) for fmt in outputs]
     return []
 
 class ImageConverter:
@@ -180,7 +177,7 @@ DOC_FORMATS = {
     'odt': ['markdown', 'html', 'latex', 'doc', 'docx', 'pdf', 'epub', 'rtf',],
     'doc': ['html', 'odt', 'docx', 'pdf', 'epub', 'rtf',],
     'docx': ['markdown', 'html', 'latex', 'odt', 'doc', 'pdf', 'epub', 'rtf',],
-    'pdf': ['markdown', 'html',],
+    'pdf': ['html',],
     'epub': ['markdown', 'html', 'latex', 'odt', 'docx', 'rtf',],
     'rtf': ['odt', 'doc', 'docx', 'pdf', 'epub',],
 
@@ -288,7 +285,6 @@ DOC_ENGINE = {
         'rtf': 'libreoffice',
     },
     'pdf': {
-        'markdown': 'libreoffice',
         'html': 'libreoffice',
     },
     'epub': {
@@ -308,14 +304,18 @@ DOC_ENGINE = {
     },
 }
 
-format_converter_pairs = [
+FORMAT_SOURCES = [
     (DOC_FORMATS, DocConverter),
     (IMAGE_FORMATS, ImageConverter),
     (AUDIO_FORMATS, AudioConverter),
     (VIDEO_FORMATS, VideoConverter),
 ]
 
-CONVERTER_MAP = {}
-for formats, converter in format_converter_pairs:
-    for fmt in formats:
-        CONVERTER_MAP[fmt] = converter
+FORMATS_MAP = {}
+
+for format_dict, converter_class in FORMAT_SOURCES:
+    for input_format, output_formats in format_dict.items():
+        FORMATS_MAP[input_format.lower()] = {
+            'converter': converter_class(),
+            'outputs': [f.lower() for f in output_formats]
+        }
