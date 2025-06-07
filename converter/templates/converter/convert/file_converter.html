@@ -4,7 +4,7 @@
 
 {% block content %}
 
-<h3 class="convert-heading">Convert your {{ input_format }} file to {{ output_format }}</h3>
+<h3 class="convert-heading">Convert your {{ input_format|upper }} file to {{ output_format|upper }}</h3>
 
 <form method="post" enctype="multipart/form-data" class="upload-form">
   {% csrf_token %}
