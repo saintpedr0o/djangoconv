@@ -1,0 +1,16 @@
+{% extends "converter/base.html" %}
+{% load static %}
+
+{% block title %}File not found!{% endblock %}
+
+{% block content %}
+<div class="convert-subcontainer">
+    <h2 class="convert-subtext">File not found!</h2>
+    <h2 class="convert-subtext">The file was removed</h2>
+
+    <div class="button-wrapper">
+        <a href="{% url 'home' %}" class="convert-button" style="text-decoration: none;">Return to the main page</a>
+    </div>
+    
+</div>
+{% endblock %}

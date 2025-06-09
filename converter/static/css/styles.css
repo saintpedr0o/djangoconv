@@ -227,3 +227,88 @@ textarea {
   font-size: 0.9em;
   margin-top: 5px;
 }
+
+.progress-wrapper {
+    width: 100%;
+    background-color: #f2e6ff;
+    border-radius: 10px;
+    height: 25px;
+    margin-bottom: 15px;
+    overflow: hidden;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+    border: 1px solid #d6b3ff;
+}
+
+.progress-bar {
+    height: 100%;
+    width: 0;
+    color: white;
+    font-weight: bold;
+    text-align: center;
+    line-height: 25px;
+    transition: width 0.4s ease;
+    white-space: nowrap;
+    user-select: none;
+
+    background-image:
+    linear-gradient(45deg, rgba(255, 255, 255, 0.2) 25%, transparent 25%,
+                                transparent 50%, rgba(255, 255, 255, 0.2) 50%,
+                                rgba(255, 255, 255, 0.2) 75%, transparent 75%, transparent),
+    linear-gradient(45deg, #6e3f7b, rgb(168, 75, 255), rgb(30, 206, 68));
+
+    background-size: 20px 20px, 100% 100%;
+    animation: progress-stripes 1s linear infinite;
+}
+
+@keyframes progress-stripes {
+    0% {
+    background-position: 0 0, 0 0;
+    }
+    100% {
+    background-position: 40px 0, 0 0;
+    }
+}
+
+#progress-bar-message {
+    display: none !important;
+}
+
+.progress-checkmark-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.progress-checkmark {
+  display: none;
+  font-size: 25px;
+  height: 25px;
+  line-height: 10px; 
+}
+
+.convert-subcontainer {
+    text-align: center;
+    margin-top: 10px;
+}
+
+.convert-subtext {
+    font-size: 1.5rem;
+    color: #552d63;
+    margin: 6px 0;
+}
+
+.convert-link {
+    font-size: 1rem;
+    color: #552d63;
+    text-decoration: none;
+}
+
+.convert-link:hover {
+    text-decoration: underline;
+    text-shadow:
+        0 0 5px rgb(168, 75, 255),
+        0 0 10px rgb(168, 75, 255),
+        0 0 15px rgb(168, 75, 255),
+        0 0 20px rgb(168, 75, 255);
+    color: #53ffff;
+}

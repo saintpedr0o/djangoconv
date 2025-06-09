@@ -10,7 +10,7 @@ from abc import ABC, abstractmethod
 
 
 def get_output_choices(input_format):
-    input_format = input_format.lower() if input_format else input_format
+    input_format = input_format.lower()
     if input_format in FORMATS_MAP:
         outputs = FORMATS_MAP[input_format]["outputs"]
         return [(fmt, fmt.upper()) for fmt in outputs]
@@ -23,7 +23,7 @@ class ConversionError(Exception):
 
 class BaseConverter(ABC):
     @abstractmethod
-    def convert(self, file, output_format):
+    def convert(self, file, input_format, output_format):
         pass
 
     def _save_file_for_return(self, output_path):
@@ -39,28 +39,30 @@ class BaseConverter(ABC):
         output_path = os.path.join(tmp_dir, f"output.{output_format}")
 
         with open(input_path, "wb") as f:
-            f.write(file.read())
+            f.write(file)
 
         return input_path, output_path, tmp_dir_obj
 
 
 class ImageConverter(BaseConverter):
-    def convert(self, file, output_format):
+    def convert(self, file, _input_format, output_format):
         try:
-            with Image.open(file) as img:
+            file_stream = io.BytesIO(file)
+            file_stream.seek(0)
+
+            with Image.open(file_stream) as img:
                 img = img.convert("RGB")
                 result = io.BytesIO()
-                img.save(result, format=output_format)
+                img.save(result, format=output_format.upper())
                 result.seek(0)
-            return result
+                return result
 
         except Exception as e:
-            raise ConversionError(e)
+            raise ConversionError(f"Сonversion failed: {e}")
 
 
 class DocConverter(BaseConverter):
-    def convert(self, file, output_format):
-        input_format = file.name.split(".")[-1].lower()
+    def convert(self, file, input_format, output_format):
         engine = DOC_ENGINE[input_format][output_format]
 
         try:
@@ -98,15 +100,14 @@ class DocConverter(BaseConverter):
             return result
 
         except Exception as e:
-            raise ConversionError(e)
+            raise ConversionError(f"Сonversion failed: {e}")
 
         finally:
             tmp_dir_obj.cleanup()
 
 
 class AudioConverter(BaseConverter):
-    def convert(self, file, output_format):
-        input_format = file.name.split(".")[-1].lower()
+    def convert(self, file, input_format, output_format):
         codec = AUDIO_CODEC.get(output_format)
 
         try:
@@ -119,7 +120,7 @@ class AudioConverter(BaseConverter):
             return result
 
         except Exception as e:
-            raise ConversionError(e)
+            raise ConversionError(f"Сonversion failed: {e}")
 
         finally:
             tmp_dir_obj.cleanup()
@@ -136,8 +137,7 @@ class VideoConverter(BaseConverter):
             "wmav2": "wma",
         }.get(acodec)
 
-    def convert(self, file, output_format):
-        input_format = file.name.split(".")[-1].lower()
+    def convert(self, file, input_format, output_format):
         codec = VIDEO_CODEC.get(output_format)
         audio_codec = VIDEO_AUDIO_CODECS.get(output_format)
 
@@ -166,7 +166,7 @@ class VideoConverter(BaseConverter):
             return result
 
         except Exception as e:
-            raise ConversionError(e)
+            raise ConversionError(f"Сonversion failed: {e}")
 
         finally:
             tmp_dir_obj.cleanup()

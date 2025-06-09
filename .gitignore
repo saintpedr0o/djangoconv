@@ -19,4 +19,4 @@ venv/
 Thumbs.db
 *.sqlite*
 fordocker.txt
-tmp*
+tmp/

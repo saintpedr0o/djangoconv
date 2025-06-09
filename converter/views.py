@@ -1,9 +1,14 @@
+import os
 from django.shortcuts import redirect, render
-from django.http import Http404, HttpResponse, JsonResponse
+from django.http import (
+    FileResponse,
+    JsonResponse,
+)
 from django.urls import reverse
-from .utils import get_output_choices, FORMATS_MAP
+from .utils import get_output_choices
 from .forms import ConvertForm, FileForm
-import uuid
+from .tasks import convert_task
+from celery.result import AsyncResult
 
 
 def get_target_formats_view(request):
@@ -36,26 +41,41 @@ def select_format_view(request):
 
 
 def convert_view(request, input_format, output_format):
-    entry = FORMATS_MAP.get(input_format)
-    if not entry or output_format not in entry["outputs"]:
-        raise Http404(f"Unsupported conversion: {input_format} -> {output_format}")
-
-    converter = entry["converter"]
     if request.method == "POST":
         form = FileForm(request.POST, request.FILES)
         if form.is_valid():
             file = form.cleaned_data["file"]
-            out_file = converter.convert(file, output_format)
-            response = HttpResponse(out_file)
-            filename = uuid.uuid4().hex[:10]
-            response["Content-Disposition"] = (
-                f'attachment; filename="converted_{filename}.{output_format}"'
-            )
-            return response
+            file_bin = file.read()
+            task = convert_task.delay(file_bin, input_format, output_format)
+            progress_url = reverse("converter:convert_progress", args=[task.id])
+            return JsonResponse({"task_id": task.id, "redirect_url": progress_url})
+        else:
+            return JsonResponse({"error": "Invalid request"}, status=400)
     else:
         form = FileForm()
-    return render(
-        request,
-        "converter/convert/file_converter.html",
-        {"form": form, "input_format": input_format, "output_format": output_format},
+        return render(
+            request,
+            "converter/convert/file_converter.html",
+            {
+                "form": form,
+                "input_format": input_format,
+                "output_format": output_format,
+            },
+        )
+
+
+def convert_progress_view(request, task_id):
+    return render(request, "converter/convert/progress.html", {"task_id": task_id})
+
+
+def download_file_view(request, task_id):
+    result = AsyncResult(task_id)
+    temp_path = result.result
+
+    if not temp_path or not os.path.exists(temp_path):
+        return render(request, "converter/file_not_found.html")
+
+    response = FileResponse(
+        open(temp_path, "rb"), as_attachment=True, filename=os.path.basename(temp_path)
     )
+    return response

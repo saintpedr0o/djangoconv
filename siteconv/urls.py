@@ -23,5 +23,8 @@ from django.views.generic import RedirectView
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("converter/", include("converter.urls", namespace="converter")),
-    path("", RedirectView.as_view(url="/converter/", permanent=True)),
+    path("", RedirectView.as_view(url="/converter/", permanent=True), name="home"),
+    path(
+        "celery-progress/", include("celery_progress.urls", namespace="celery_progress")
+    ),
 ]

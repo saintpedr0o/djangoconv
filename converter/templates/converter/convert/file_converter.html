@@ -6,7 +6,7 @@
 
 <h3 class="convert-heading">Convert your {{ input_format|upper }} file to {{ output_format|upper }}</h3>
 
-<form method="post" enctype="multipart/form-data" class="upload-form">
+<form method="post" enctype="multipart/form-data" class="upload-form" id="upload-form">
   {% csrf_token %}
 
   {% if form.non_field_errors %}
@@ -41,23 +41,50 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
+
+  const form = document.getElementById('upload-form');
+
+  if (form) {
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      const formData = new FormData(form);
+
+      fetch(window.location.href, {
+        method: 'POST',
+        body: formData,
+        headers: {
+          'X-CSRFToken': '{{ csrf_token }}'
+        }
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.redirect_url) {
+          window.location.href = data.redirect_url;
+        } else if (data.error) {
+          alert('Error: ' + data.error);
+        }
+      })
+      .catch(() => alert('Requenst sent error'));
+    });
+  }
+
+ 
   const fileInput = document.querySelector('.custom-file-button input[type="file"]');
   const checkmark = document.querySelector('.file-selected-checkmark');
-  const form = document.querySelector('.upload-form');
 
-  if (!fileInput || !checkmark || !form) return;
+  if (fileInput && checkmark && form) {
+    fileInput.addEventListener('change', function () {
+      checkmark.style.display = fileInput.files.length > 0 ? 'inline' : 'none';
+    });
 
-  fileInput.addEventListener('change', function () {
-    checkmark.style.display = fileInput.files.length > 0 ? 'inline' : 'none';
-  });
-
-  form.addEventListener('submit', function () {
-    // Short delay to allow file to be sent before reset
-    setTimeout(() => {
-      form.reset();
-      checkmark.style.display = 'none';
-    }, 300);
-  });
+    form.addEventListener('submit', function () {
+      setTimeout(() => {
+        form.reset();
+        checkmark.style.display = 'none';
+      }, 300);
+    });
+  }
 });
 </script>
 
