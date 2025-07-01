@@ -1,5 +1,5 @@
 from django import forms
-from .utils import FORMATS_MAP
+from .utils.converters import FORMATS_MAP
 
 
 format_choices = [(fmt, fmt.upper()) for fmt in FORMATS_MAP.keys()]

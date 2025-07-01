@@ -297,6 +297,13 @@ textarea {
     margin: 6px 0;
 }
 
+.progress-error {
+  display: none;
+  font-size: 25px;
+  height: 25px;
+  line-height: 10px; 
+}
+
 .convert-link {
     font-size: 1rem;
     color: #552d63;
@@ -311,4 +318,50 @@ textarea {
         0 0 15px rgb(168, 75, 255),
         0 0 20px rgb(168, 75, 255);
     color: #53ffff;
+}
+
+.drop-zone {
+  border: 2px dashed #a84bff;
+  padding: 40px 20px;
+  border-radius: 10px;
+  text-align: center;
+  color: #552d63;
+  margin-bottom: 15px;
+  transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  min-height: 180px;
+  cursor: pointer;
+  position: relative;
+}
+
+.drop-zone.dragover,
+.drop-zone:hover,
+.drop-zone:focus {
+  background-color: #f0e6ff;
+  border-color: #a84bff;
+  box-shadow: 0 0 10px rgba(168, 75, 255, 0.3);
+  outline: none;
+}
+
+.drop-zone p {
+  margin: 0;
+  pointer-events: none;
+  user-select: none;
+  font-weight: 600;
+}
+
+.file-selected-checkmark {
+  font-size: 1.2rem;
+  user-select: none;
+  margin-top: 15px;
+  display: none;
+}
+
+input[type="file"] {
+  display: none;
 }

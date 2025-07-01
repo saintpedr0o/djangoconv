@@ -10,51 +10,24 @@
     <div class="progress-bar" id="progress-bar"></div>
   </div>
   <span class="progress-checkmark" aria-hidden="true" style="display: none;">✅</span>
+  <span class="progress-error" aria-hidden="true" style="display: none;">❌</span>
 </div>
 
 <div class="convert-heading" id="progress-bar-message">Waiting for progress to start...</div>
 
 <div class="convert-heading" id="celery-result"></div>
 
-<button id="download-btn" type="button" style="display: none;"></button>
+<div class="button-wrapper" style="text-align:center; margin-top:20px;">
+  <button type="button" id="download-btn" class="convert-button" style="display: none;">Download</button>
+  <button type="button" id="home-btn" class="convert-button" style="display: none;">Return to the main page</button>
+</div>
 
 <script src="{% static 'celery_progress/celery_progress.js' %}"></script>
-
 <script>
-    document.addEventListener("DOMContentLoaded", function () {
-      var progressUrl = "{% url 'celery_progress:task_status' task_id %}";
-
-      function customResult(resultElement, result) {
-            resultElement.innerHTML = `
-                <div class="button-wrapper" style="text-align:center; margin-top:20px;">
-                <button type="button" id="download-btn" class="convert-button">Download</button>
-                </div>
-            `;
-
-            const downloadUrl = "{% url 'converter:download_file' task_id %}";
-
-            const downloadBtn = document.getElementById('download-btn');
-            if (downloadBtn && downloadUrl) {
-                downloadBtn.addEventListener('click', function () {
-                window.location.href = downloadUrl;
-                });
-            }
-
-            const content = document.getElementById('progress-bar-message').innerText;
-            const checkmark = document.querySelector('.progress-checkmark');
-              if (content === 'Success! ') {
-                checkmark.style.display = 'inline';
-              } else {
-                console.log('content != success');
-              }
-      }
-
-      CeleryProgressBar.initProgressBar(progressUrl, {
-        onResult: customResult
-      });
-
-    });
+  const progressUrl = "{% url 'converter:convert_progress' token %}";
+  const downloadUrl = "{% url 'converter:download_file' token %}";
+  const errorUrl = "{% url 'home' %}";
 </script>
-
+<script src="{% static 'converter/js/progressbar.js' %}"></script>
 
 {% endblock %}

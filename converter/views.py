@@ -1,14 +1,20 @@
 import os
+import time
 from django.shortcuts import redirect, render
 from django.http import (
     FileResponse,
     JsonResponse,
 )
 from django.urls import reverse
-from .utils import get_output_choices
+from .utils.converters import get_output_choices
 from .forms import ConvertForm, FileForm
 from .tasks import convert_task
 from celery.result import AsyncResult
+from django.conf import settings
+import secrets
+from .utils.redis_ext_client import redis_client
+from celery_progress.backend import Progress
+from django.views.decorators.http import require_GET
 
 
 def get_target_formats_view(request):
@@ -46,36 +52,87 @@ def convert_view(request, input_format, output_format):
         if form.is_valid():
             file = form.cleaned_data["file"]
             file_bin = file.read()
-            task = convert_task.delay(file_bin, input_format, output_format)
-            progress_url = reverse("converter:convert_progress", args=[task.id])
-            return JsonResponse({"task_id": task.id, "redirect_url": progress_url})
+            token = secrets.token_urlsafe(16)
+            task = convert_task.delay(file_bin, input_format, output_format, token)
+            redis_client.setex(f"conv:{token}", settings.FILE_TTL, task.id)
+            progress_url = reverse("converter:convert_progress_info", args=[token])
+            return JsonResponse({"token": token, "redirect_url": progress_url})
         else:
             return JsonResponse({"error": "Invalid request"}, status=400)
     else:
         form = FileForm()
-        return render(
-            request,
-            "converter/convert/file_converter.html",
+    return render(
+        request,
+        "converter/convert/file_converter.html",
+        {
+            "form": form,
+            "input_format": input_format,
+            "output_format": output_format,
+        },
+    )
+
+
+def convert_progressbar(request, token):
+    return render(
+        request,
+        "converter/convert/progress.html",
+        {"token": token},
+    )
+
+
+@require_GET
+def convert_progress_view(request, token):
+    try:
+        task_id = redis_client.get(f"conv:{token}")
+        if not task_id:
+            return JsonResponse(
+                {
+                    "complete": True,
+                    "success": False,
+                    "result": "Invalid convert token",
+                }
+            )
+        task_result = AsyncResult(task_id.decode())
+        if task_result.failed():
+            return JsonResponse(
+                {
+                    "complete": True,
+                    "success": False,
+                    "result": "Conversion task failed",
+                }
+            )
+
+        progress_data = Progress(task_result).get_info()
+        return JsonResponse(progress_data)
+
+    except Exception as e:
+        return JsonResponse(
             {
-                "form": form,
-                "input_format": input_format,
-                "output_format": output_format,
-            },
+                "complete": True,
+                "success": False,
+                "result": f"Unexpected error: {str(e)}",
+            }
         )
 
 
-def convert_progress_view(request, task_id):
-    return render(request, "converter/convert/progress.html", {"task_id": task_id})
-
-
-def download_file_view(request, task_id):
-    result = AsyncResult(task_id)
-    temp_path = result.result
-
-    if not temp_path or not os.path.exists(temp_path):
+def download_file_view(request, token):
+    temp_path = redis_client.get(f"path:{token}")
+    if not temp_path:
         return render(request, "converter/file_not_found.html")
 
-    response = FileResponse(
-        open(temp_path, "rb"), as_attachment=True, filename=os.path.basename(temp_path)
-    )
-    return response
+    temp_path = temp_path.decode()
+
+    if (
+        not os.path.exists(temp_path)
+        or (time.time() - os.path.getmtime(temp_path)) > settings.FILE_TTL
+    ):
+        return render(request, "converter/file_not_found.html")
+
+    try:
+        return FileResponse(
+            open(temp_path, "rb"),
+            as_attachment=True,
+            filename=os.path.basename(temp_path),
+        )
+    except OSError:
+        return render(request, "converter/file_not_found.html")

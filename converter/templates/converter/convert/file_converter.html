@@ -1,4 +1,5 @@
 {% extends "converter/base.html" %}
+{% load static %}
 
 {% block title %}Convert to {{output_format}}{% endblock %}
 
@@ -18,20 +19,20 @@
   {% endif %}
 
   <div class="file-upload-wrapper">
-    <div class="custom-file-button">
-      <span class="file-label">📁 Choose file</span>
-      {{ form.file }}
+    <label for="file-input" class="drop-zone" id="drop-zone" tabindex="0" role="button" aria-label="Drag and drop file here or click to select">
+      <p>Drop your file here or click to select<span class="file-selected-checkmark" aria-hidden="true" style="display:none;">✅</span></p>
+    </label>
 
-      {% if form.file.errors %}
-        <div class="field-errors">
-          {% for error in form.file.errors %}
-            <p class="error">{{ error }}</p>
-          {% endfor %}
-        </div>
-      {% endif %}
+    <input type="file" name="{{ form.file.name }}" id="file-input" class="file-input"/>
 
-      <span class="file-selected-checkmark" aria-hidden="true" style="display: none;">✅</span>
-    </div>
+    <div id="file-error" class="error" style="display:none; margin-top: 8px;"></div>
+    {% if form.file.errors %}
+      <div class="field-errors">
+        {% for error in form.file.errors %}
+          <p class="error">{{ error }}</p>
+        {% endfor %}
+      </div>
+    {% endif %}
   </div>
 
   <div class="button-wrapper">
@@ -39,53 +40,6 @@
   </div>
 </form>
 
-<script>
-document.addEventListener('DOMContentLoaded', function () {
+<script src="{% static 'converter/js/drag_and_drop.js' %}"></script>
 
-  const form = document.getElementById('upload-form');
-
-  if (form) {
-    form.addEventListener('submit', function(e) {
-      e.preventDefault();
-
-      const formData = new FormData(form);
-
-      fetch(window.location.href, {
-        method: 'POST',
-        body: formData,
-        headers: {
-          'X-CSRFToken': '{{ csrf_token }}'
-        }
-      })
-      .then(response => response.json())
-      .then(data => {
-        if (data.redirect_url) {
-          window.location.href = data.redirect_url;
-        } else if (data.error) {
-          alert('Error: ' + data.error);
-        }
-      })
-      .catch(() => alert('Requenst sent error'));
-    });
-  }
-
- 
-  const fileInput = document.querySelector('.custom-file-button input[type="file"]');
-  const checkmark = document.querySelector('.file-selected-checkmark');
-
-  if (fileInput && checkmark && form) {
-    fileInput.addEventListener('change', function () {
-      checkmark.style.display = fileInput.files.length > 0 ? 'inline' : 'none';
-    });
-
-    form.addEventListener('submit', function () {
-      setTimeout(() => {
-        form.reset();
-        checkmark.style.display = 'none';
-      }, 300);
-    });
-  }
-});
-</script>
-
-{%endblock%}
+{% endblock %}

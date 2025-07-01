@@ -394,6 +394,6 @@ FORMATS_MAP = {}
 for format_dict, converter_class in FORMAT_SOURCES:
     for input_format, output_formats in format_dict.items():
         FORMATS_MAP[input_format.lower()] = {
-            "converter": converter_class(),
+            "converter": converter_class,
             "outputs": [f for f in output_formats],
         }

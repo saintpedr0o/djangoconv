@@ -15,11 +15,14 @@ urlpatterns = [
         name="convert",
     ),
     path(
-        "convert-progress/<str:task_id>/",
+        "convert-progress-info/<str:token>/",
+        views.convert_progressbar,
+        name="convert_progress_info",
+    ),
+    path(
+        "convert-progress/<str:token>/",
         views.convert_progress_view,
         name="convert_progress",
     ),
-    path(
-        "download_file/<str:task_id>/", views.download_file_view, name="download_file"
-    ),
+    path("download-file/<str:token>/", views.download_file_view, name="download_file"),
 ]
