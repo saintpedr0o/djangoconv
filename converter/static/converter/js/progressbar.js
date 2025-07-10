@@ -1,6 +1,7 @@
 document.addEventListener("DOMContentLoaded", function () {
     const downloadBtn = document.getElementById('download-btn');
     const homeBtn = document.getElementById('home-btn');
+    const successHome = document.getElementById('home-text-link');
     const checkmark = document.querySelector('.progress-checkmark');
     const errormark = document.querySelector('.progress-error');
     const heading = document.querySelector('.convert-heading');
@@ -25,6 +26,7 @@ document.addEventListener("DOMContentLoaded", function () {
             errormark.style.display = 'none';
             downloadBtn.style.display = 'inline-block';
             homeBtn.style.display = 'none';
+            successHome.style.display = 'inline-block';
         } else {
             errormark.style.display = 'inline';
             checkmark.style.display = 'none';

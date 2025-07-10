@@ -14,6 +14,11 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
+    const formatAliases = {
+        jpeg: ['jpeg', 'jpg'],
+        jpg: ['jpeg', 'jpg'],
+    };
+
     function showError(message) {
         errorDiv.textContent = message;
         errorDiv.style.display = 'block';
@@ -31,8 +36,10 @@ document.addEventListener('DOMContentLoaded', function () {
             return false;
         }
         const fileName = file.name.toLowerCase();
-        if (!fileName.endsWith('.' + requiredFormat)) {
-            showError(`Invalid file format. Please upload a .${requiredFormat} file`);
+        const validExtensions = formatAliases[requiredFormat] || [requiredFormat];
+        const isValid = validExtensions.some(ext => fileName.endsWith('.' + ext));
+        if (!isValid) {
+            showError(`Invalid file format. Please upload a file with extension: ${validExtensions.map(e => '.' + e).join(', ')}`);
             return false;
         }
         return true;
@@ -96,14 +103,11 @@ document.addEventListener('DOMContentLoaded', function () {
     if (form) {
         form.addEventListener('submit', function(e) {
             e.preventDefault();
-
             const file = fileInput.files[0];
             if (!validateFile(file)) {
                 return;
             }
-
             const formData = new FormData(form);
-
             fetch(window.location.href, {
                     method: 'POST',
                     body: formData,

@@ -7,14 +7,23 @@ from PIL import Image
 from moviepy.audio.io.AudioFileClip import AudioFileClip
 from moviepy.video.io.VideoFileClip import VideoFileClip
 from abc import ABC, abstractmethod
+from converter.models import FormatConversion
 
 
-def get_output_choices(input_format):
-    input_format = input_format.lower()
-    if input_format in FORMATS_MAP:
-        outputs = FORMATS_MAP[input_format]["outputs"]
-        return [(fmt, fmt.upper()) for fmt in outputs]
-    return []
+FORMAT_ALIASES = {
+    "jpg": "jpeg",
+    "jpeg": "jpeg",
+}
+
+
+def get_conversion(input_format, output_format):
+    input_format = FORMAT_ALIASES.get(input_format, input_format)
+    output_format = FORMAT_ALIASES.get(output_format, output_format)
+    conversion = FormatConversion.objects.get(
+        input_format__name__iexact=input_format,
+        output_format__name__iexact=output_format,
+    )
+    return conversion
 
 
 class ConversionError(Exception):
@@ -63,7 +72,8 @@ class ImageConverter(BaseConverter):
 
 class DocConverter(BaseConverter):
     def convert(self, file, input_format, output_format):
-        engine = DOC_ENGINE[input_format][output_format]
+        conversion = get_conversion(input_format, output_format)
+        engine = conversion.engine
 
         try:
             input_path, output_path, tmp_dir_obj = self._create_temp_dir(
@@ -108,7 +118,8 @@ class DocConverter(BaseConverter):
 
 class AudioConverter(BaseConverter):
     def convert(self, file, input_format, output_format):
-        codec = AUDIO_CODEC.get(output_format)
+        conversion = get_conversion(input_format, output_format)
+        codec = conversion.audio_codec
 
         try:
             input_path, output_path, tmp_dir_obj = self._create_temp_dir(
@@ -138,8 +149,9 @@ class VideoConverter(BaseConverter):
         }.get(acodec)
 
     def convert(self, file, input_format, output_format):
-        codec = VIDEO_CODEC.get(output_format)
-        audio_codec = VIDEO_AUDIO_CODECS.get(output_format)
+        conversion = get_conversion(input_format, output_format)
+        codec = conversion.video_codec
+        audio_codec = conversion.audio_video_codec
 
         try:
             input_path, output_path, tmp_dir_obj = self._create_temp_dir(
@@ -170,230 +182,3 @@ class VideoConverter(BaseConverter):
 
         finally:
             tmp_dir_obj.cleanup()
-
-
-BASE_IMAGE_FORMATS = ["JPEG", "PNG", "BMP", "GIF", "TIFF", "WEBP"]
-IMAGE_FORMATS = {
-    fmt: [f for f in BASE_IMAGE_FORMATS if f != fmt] for fmt in BASE_IMAGE_FORMATS
-}
-IMAGE_FORMATS.update(
-    {
-        "ICO": ["PNG"],
-        "PPM": ["PNG", "JPEG"],
-        "TGA": ["PNG", "JPEG"],
-    }
-)
-
-DOC_FORMATS = {
-    "markdown": [
-        "html",
-        "latex",
-        "odt",
-        "doc",
-        "docx",
-        "pdf",
-        "epub",
-        "rtf",
-    ],
-    "html": [
-        "markdown",
-        "latex",
-        "odt",
-        "docx",
-        "pdf",
-        "epub",
-        "rtf",
-    ],
-    "latex": [
-        "markdown",
-        "html",
-        "odt",
-        "doc",
-        "docx",
-        "pdf",
-        "epub",
-        "rtf",
-    ],
-    "odt": [
-        "markdown",
-        "html",
-        "latex",
-        "doc",
-        "docx",
-        "pdf",
-        "epub",
-        "rtf",
-    ],
-    "doc": [
-        "html",
-        "odt",
-        "docx",
-        "pdf",
-        "epub",
-        "rtf",
-    ],
-    "docx": [
-        "markdown",
-        "html",
-        "latex",
-        "odt",
-        "doc",
-        "pdf",
-        "epub",
-        "rtf",
-    ],
-    "pdf": [
-        "html",
-    ],
-    "epub": [
-        "markdown",
-        "html",
-        "latex",
-        "odt",
-        "docx",
-        "rtf",
-    ],
-    "rtf": [
-        "odt",
-        "doc",
-        "docx",
-        "pdf",
-        "epub",
-    ],
-}
-
-VIDEO = ["mp4", "avi", "mov", "webm", "mkv", "flv", "wmv", "mpeg", "ogv"]
-VIDEO_FORMATS = {fmt: [f for f in VIDEO if f != fmt] for fmt in VIDEO}
-
-VIDEO_AUDIO_CODECS = {
-    "mp4": "aac",
-    "avi": "libmp3lame",
-    "mov": "aac",
-    "webm": "libvorbis",
-    "mkv": "aac",
-    "flv": "libmp3lame",
-    "wmv": "wmav2",
-    "mpeg": "mp2",
-    "ogv": "libvorbis",
-}
-
-VIDEO_CODEC = {
-    "mp4": "libx264",
-    "avi": "mpeg4",
-    "mov": "libx264",
-    "webm": "libvpx",
-    "mkv": "libx264",
-    "flv": "flv",
-    "wmv": "wmv2",
-    "mpeg": "mpeg2video",
-    "ogv": "libtheora",
-}
-
-
-AUDIO = ["mp3", "wav", "ogg", "flac", "aac", "m4a", "wma", "opus"]
-AUDIO_FORMATS = {fmt: [f for f in AUDIO if f != fmt] for fmt in AUDIO}
-
-AUDIO_CODEC = {
-    "mp3": "libmp3lame",
-    "wav": None,
-    "ogg": "libvorbis",
-    "flac": "flac",
-    "aac": "aac",
-    "m4a": "aac",
-    "wma": "wmav2",
-    "opus": "libopus",
-}
-
-DOC_ENGINE = {
-    "markdown": {
-        "html": "pandoc",
-        "latex": "pandoc",
-        "odt": "pandoc",
-        "doc": "libreoffice",
-        "docx": "pandoc",
-        "pdf": "libreoffice",
-        "epub": "pandoc",
-        "rtf": "pandoc",
-    },
-    "html": {
-        "markdown": "pandoc",
-        "latex": "pandoc",
-        "odt": "libreoffice",
-        "docx": "pandoc",
-        "pdf": "libreoffice",
-        "epub": "pandoc",
-        "rtf": "pandoc",
-    },
-    "latex": {
-        "markdown": "pandoc",
-        "html": "pandoc",
-        "odt": "pandoc",
-        "doc": "libreoffice",
-        "docx": "pandoc",
-        "pdf": "libreoffice",
-        "epub": "pandoc",
-        "rtf": "pandoc",
-    },
-    "odt": {
-        "markdown": "pandoc",
-        "html": "pandoc",
-        "latex": "pandoc",
-        "doc": "libreoffice",
-        "docx": "libreoffice",
-        "pdf": "libreoffice",
-        "epub": "pandoc",
-        "rtf": "libreoffice",
-    },
-    "doc": {
-        "html": "libreoffice",
-        "odt": "libreoffice",
-        "pdf": "libreoffice",
-        "docx": "libreoffice",
-        "epub": "libreoffice",
-        "rtf": "libreoffice",
-    },
-    "docx": {
-        "markdown": "pandoc",
-        "html": "pandoc",
-        "latex": "pandoc",
-        "odt": "libreoffice",
-        "doc": "libreoffice",
-        "pdf": "libreoffice",
-        "epub": "pandoc",
-        "rtf": "libreoffice",
-    },
-    "pdf": {
-        "html": "libreoffice",
-    },
-    "epub": {
-        "markdown": "pandoc",
-        "html": "pandoc",
-        "latex": "pandoc",
-        "odt": "pandoc",
-        "docx": "pandoc",
-        "rtf": "pandoc",
-    },
-    "rtf": {
-        "odt": "libreoffice",
-        "doc": "libreoffice",
-        "docx": "libreoffice",
-        "pdf": "libreoffice",
-        "epub": "libreoffice",
-    },
-}
-
-FORMAT_SOURCES = [
-    (DOC_FORMATS, DocConverter),
-    (IMAGE_FORMATS, ImageConverter),
-    (AUDIO_FORMATS, AudioConverter),
-    (VIDEO_FORMATS, VideoConverter),
-]
-
-FORMATS_MAP = {}
-
-for format_dict, converter_class in FORMAT_SOURCES:
-    for input_format, output_formats in format_dict.items():
-        FORMATS_MAP[input_format.lower()] = {
-            "converter": converter_class,
-            "outputs": [f for f in output_formats],
-        }

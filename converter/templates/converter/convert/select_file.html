@@ -1,0 +1,13 @@
+{% extends "converter/base.html" %}
+
+{% block title %}Select file type{% endblock %}
+
+{% block content %}
+
+<div class="buttons-container">
+{% for low, big in format_types %}
+    <a href="{% url "converter:select_format" low %}" class="select-file-btn">Convert {{big}}</a>
+{% endfor %}
+</div>
+
+{% endblock %}

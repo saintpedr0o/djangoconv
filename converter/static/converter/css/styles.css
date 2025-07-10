@@ -365,3 +365,42 @@ textarea {
 input[type="file"] {
   display: none;
 }
+
+.select-file-btn {
+  border: 3px solid #552d63;
+  border-radius: 12px;
+  padding: 20px 40px;
+  color: #552d63;
+  background-color: transparent;
+  font-weight: 600;
+  font-size: 18px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+
+  min-width: 140px;
+  user-select: none;
+
+  text-decoration: none;
+}
+
+.select-file-btn:hover,
+.select-file-btn:focus {
+  background-color: #f0e6ff;
+  border-color: #a84bff;
+  box-shadow: 0 0 10px rgba(168, 75, 255, 0.3);
+  outline: none;
+  text-decoration: none;
+}
+
+.buttons-container {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  gap: 20px;
+  height: 400px;
+  width: 100%;
+}

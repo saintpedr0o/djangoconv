@@ -22,6 +22,15 @@
   <button type="button" id="home-btn" class="convert-button" style="display: none;">Return to the main page</button>
 </div>
 
+<div class="button-wrapper" style="text-align:center; margin-top:20px;">
+  <div style="text-align: center; display: none;" id="home-text-link">
+    <a href="{% url 'home' %}" style="text-decoration: none; font-size: 1em; color: #552d63;"
+    onmouseover="this.style.textDecoration='underline';"
+    onmouseout="this.style.textDecoration='none';">
+    Convert More Files</a>
+  </div>
+</div>
+
 <script src="{% static 'celery_progress/celery_progress.js' %}"></script>
 <script>
   const progressUrl = "{% url 'converter:convert_progress' token %}";
