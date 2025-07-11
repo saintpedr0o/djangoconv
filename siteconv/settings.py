@@ -136,6 +136,8 @@ TEMP_DIR.mkdir(exist_ok=True)
 
 # value in sec
 FILE_TTL = 300
+# value in bytes
+MAX_FORM_FILE_SIZE = 1024 * 1024 * 1024  # 1 GB
 
 CACHES = {
     "default": {

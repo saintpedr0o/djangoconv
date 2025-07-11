@@ -35,6 +35,10 @@ document.addEventListener('DOMContentLoaded', function () {
             showError('Please select a file');
             return false;
         }
+        if (file.size > MAX_SIZE_BYTES) {
+            showError(`Max file size is ${(MAX_SIZE_BYTES / (1024 ** 3)).toFixed(1)} GB`);
+            return false;
+        }
         const fileName = file.name.toLowerCase();
         const validExtensions = formatAliases[requiredFormat] || [requiredFormat];
         const isValid = validExtensions.some(ext => fileName.endsWith('.' + ext));
@@ -121,7 +125,16 @@ document.addEventListener('DOMContentLoaded', function () {
                         form.reset();
                         window.location.href = data.redirect_url;
                     } else if (data.error) {
-                        showError(data.error);
+                        if (typeof data.error === 'object') {
+                            const firstField = Object.keys(data.error)[0];
+                            if (firstField && data.error[firstField].length > 0) {
+                                showError(data.error[firstField][0]);
+                            } else {
+                                showError('Unknown error');
+                            }
+                        } else {
+                            showError(data.error);
+                        }
                     }
                 })
                 .catch(() => {

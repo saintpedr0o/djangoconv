@@ -1,20 +1,18 @@
 import os
 import time
 from django.shortcuts import redirect, render
-from django.http import (
-    FileResponse,
-    JsonResponse,
-)
+from django.http import FileResponse, JsonResponse
 from django.urls import reverse
-from .utils.converters import get_output_choices
+from .utils.cache_func import get_input_choices, get_output_choices
+from .utils.redis_ext_client import redis_client
 from .forms import ConvertForm, FileForm
 from .tasks import convert_task
 from celery.result import AsyncResult
 from django.conf import settings
 import secrets
-from .utils.redis_ext_client import redis_client
 from celery_progress.backend import Progress
 from django.views.decorators.http import require_GET
+from .models import FormatType
 
 
 def get_target_formats_view(request):
@@ -23,27 +21,33 @@ def get_target_formats_view(request):
     return JsonResponse({"choices": choices})
 
 
-def select_format_view(request):
-    input_format = request.POST.get("input_format") or "markdown"  # default: markdown
-    choices = get_output_choices(input_format)
+def select_file_view(request):
+    format_types = FormatType.choices
+    return render(
+        request, "converter/convert/select_file.html", {"format_types": format_types}
+    )
 
-    if request.method == "POST":
-        form = ConvertForm(request.POST)
-        form.fields["output_format"].choices = choices
-        if form.is_valid():
-            output_format = form.cleaned_data["output_format"]
-            url = reverse(
-                "converter:convert",
-                kwargs={
-                    "input_format": input_format,
-                    "output_format": output_format,
-                },
-            )
-            return redirect(url)
-    else:
-        form = ConvertForm(initial={"input_format": input_format})
-        form.fields["output_format"].choices = choices
-    return render(request, "converter/convert/select_format.html", {"form": form})
+
+def select_format_view(request, category):
+    input_choices = get_input_choices(category)
+    selected_input = input_choices[0][0]
+    output_choices = get_output_choices(selected_input)
+    form = ConvertForm(
+        data=request.POST if request.method == "POST" else None,
+        initial={
+            "input_format": selected_input,
+        }
+    )
+    form.fields["input_format"].choices = input_choices
+    form.fields["output_format"].choices = output_choices
+
+    if request.method == "POST" and form.is_valid():
+        return redirect(reverse("converter:convert", kwargs=form.cleaned_data))
+
+    return render(request, "converter/convert/select_format.html", {
+        "form": form,
+        "category": category,
+    })
 
 
 def convert_view(request, input_format, output_format):
@@ -58,7 +62,7 @@ def convert_view(request, input_format, output_format):
             progress_url = reverse("converter:convert_progress_info", args=[token])
             return JsonResponse({"token": token, "redirect_url": progress_url})
         else:
-            return JsonResponse({"error": "Invalid request"}, status=400)
+            return JsonResponse({"error": form.errors.as_text()}, status=400)
     else:
         form = FileForm()
     return render(
@@ -68,6 +72,7 @@ def convert_view(request, input_format, output_format):
             "form": form,
             "input_format": input_format,
             "output_format": output_format,
+            'MAX_FORM_FILE_SIZE': settings.MAX_FORM_FILE_SIZE,
         },
     )
 
@@ -110,7 +115,7 @@ def convert_progress_view(request, token):
             {
                 "complete": True,
                 "success": False,
-                "result": f"Unexpected error: {str(e)}",
+                "result": f"Unexpected error",
             }
         )
 
