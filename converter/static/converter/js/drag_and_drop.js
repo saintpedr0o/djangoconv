@@ -14,9 +14,11 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    const formatAliases = {
-        jpeg: ['jpeg', 'jpg'],
-        jpg: ['jpeg', 'jpg'],
+   const formatAliases = {
+    jpeg: ['jpeg', 'jpg', 'jpe', 'jfif'],
+    tiff: ['tiff', 'tif'],
+    bmp: ['bmp', 'bmpf', 'dib'],
+    html: ['html', 'htm']
     };
 
     function showError(message) {

@@ -30,13 +30,15 @@ def select_file_view(request):
 
 def select_format_view(request, category):
     input_choices = get_input_choices(category)
-    selected_input = input_choices[0][0]
+    selected_input = request.POST.get("input_format") or input_choices[0][0]
     output_choices = get_output_choices(selected_input)
+    selected_output = request.POST.get("output_format") or output_choices[0][0]
     form = ConvertForm(
         data=request.POST if request.method == "POST" else None,
         initial={
             "input_format": selected_input,
-        }
+            "output_format": selected_output,
+        },
     )
     form.fields["input_format"].choices = input_choices
     form.fields["output_format"].choices = output_choices
@@ -44,10 +46,14 @@ def select_format_view(request, category):
     if request.method == "POST" and form.is_valid():
         return redirect(reverse("converter:convert", kwargs=form.cleaned_data))
 
-    return render(request, "converter/convert/select_format.html", {
-        "form": form,
-        "category": category,
-    })
+    return render(
+        request,
+        "converter/convert/select_format.html",
+        {
+            "form": form,
+            "category": category,
+        },
+    )
 
 
 def convert_view(request, input_format, output_format):
@@ -72,7 +78,7 @@ def convert_view(request, input_format, output_format):
             "form": form,
             "input_format": input_format,
             "output_format": output_format,
-            'MAX_FORM_FILE_SIZE': settings.MAX_FORM_FILE_SIZE,
+            "MAX_FORM_FILE_SIZE": settings.MAX_FORM_FILE_SIZE,
         },
     )
 

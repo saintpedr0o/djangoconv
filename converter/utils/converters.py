@@ -12,7 +12,12 @@ from converter.models import FormatConversion
 
 FORMAT_ALIASES = {
     "jpg": "jpeg",
-    "jpeg": "jpeg",
+    "jpe": "jpeg",
+    "jfif": "jpeg",
+    "tif": "tiff",
+    "bmpf": "bmp",
+    "dib": "bmp",
+    "htm": "html",
 }
 
 
@@ -23,7 +28,7 @@ def get_conversion(input_format, output_format):
         input_format__name__iexact=input_format,
         output_format__name__iexact=output_format,
     )
-    return conversion
+    return conversion, output_format
 
 
 class ConversionError(Exception):

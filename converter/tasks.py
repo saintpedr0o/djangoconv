@@ -1,6 +1,7 @@
 import os
 import uuid
 from celery import shared_task
+from .models import FormatConversion
 from .utils.cache_func import get_converter_map, get_converter_class
 from .utils.converters import get_conversion
 from celery_progress.backend import ProgressRecorder
@@ -14,7 +15,7 @@ def convert_task(self, file, input_format, output_format, token):
     progress_recorder = ProgressRecorder(self)
 
     try:
-        conversion = get_conversion(input_format, output_format)
+        conversion, output_format = get_conversion(input_format, output_format)
         progress_recorder.set_progress(25, 100)
 
         format_type = conversion.input_format.file_type
@@ -35,6 +36,9 @@ def convert_task(self, file, input_format, output_format, token):
         progress_recorder.set_progress(100, 100)
 
         return temp_path
+
+    except FormatConversion.DoesNotExist:
+        print(f"[convert_task] Unsupported format: {input_format} -> {output_format}")
 
     except Exception as e:
         print(f"[convert_task] - error to convert file: {e}")
