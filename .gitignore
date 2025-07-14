@@ -21,3 +21,4 @@ Thumbs.db
 fordocker.txt
 tmp/
 *.sh
+celerybeat-schedule
