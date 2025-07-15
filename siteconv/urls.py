@@ -24,7 +24,5 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("converter/", include("converter.urls", namespace="converter")),
     path("", RedirectView.as_view(url="/converter/", permanent=True), name="home"),
-    path(
-        "celery-progress/", include("celery_progress.urls", namespace="celery_progress")
-    ),
+    path("api/converter/", include("converter.api.urls", namespace="converter_api")),
 ]

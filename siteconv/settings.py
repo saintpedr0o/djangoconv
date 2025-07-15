@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "converter.apps.ConverterConfig",
     "celery_progress",
+    "rest_framework",
 ]
 
 MIDDLEWARE = [
@@ -126,7 +127,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 CELERY_BROKER_URL = "amqp://guest:guest@localhost:5672//"
 CELERY_RESULT_BACKEND = "redis://localhost:6379/0"
-CELERY_TASK_RESULT_EXPIRES = 300  # 5 min ttl for redis db-0
+CELERY_RESULT_EXPIRES = 300  # 5 min ttl for redis db-0
 # beats
 CELERY_BEAT_SCHEDULER = "celery.beat.PersistentScheduler"
 
