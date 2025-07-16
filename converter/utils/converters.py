@@ -77,7 +77,7 @@ class ImageConverter(BaseConverter):
 
 class DocConverter(BaseConverter):
     def convert(self, file, input_format, output_format):
-        conversion = get_conversion(input_format, output_format)
+        conversion, output_format = get_conversion(input_format, output_format)
         engine = conversion.engine
 
         try:
@@ -123,7 +123,7 @@ class DocConverter(BaseConverter):
 
 class AudioConverter(BaseConverter):
     def convert(self, file, input_format, output_format):
-        conversion = get_conversion(input_format, output_format)
+        conversion, output_format = get_conversion(input_format, output_format)
         codec = conversion.audio_codec
 
         try:
@@ -154,7 +154,7 @@ class VideoConverter(BaseConverter):
         }.get(acodec)
 
     def convert(self, file, input_format, output_format):
-        conversion = get_conversion(input_format, output_format)
+        conversion, output_format = get_conversion(input_format, output_format)
         codec = conversion.video_codec
         audio_codec = conversion.audio_video_codec
 
