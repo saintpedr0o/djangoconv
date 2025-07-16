@@ -1,0 +1,30 @@
+{% extends "converter/base.html" %}
+{% load static %}
+
+{% block title %}Profile{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'users/css/styles.css' %}">
+
+<h3 class="convert-heading">Welcome, {{ user.username }}!😎</h3>
+
+<p class="profile-subtext">This is your profile page👤✅</p>
+
+<div id="api-key-section" class="button-wrapper">
+    <button id="get-key-btn" class="convert-button">Get API key🛠️</button>
+    <button id="refresh-key-btn" style="display: none;" class="convert-button">Refresh API key</button>
+    <p id="api-key-display"></p>
+</div>
+
+<script>
+    const getOrCreateAPIKey = "{% url 'api_key:get_or_create_api_key' %}";
+    const refreshAPIKey = "{% url 'api_key:refresh_api_key' %}";
+</script> 
+<script src='{% static "users/js/api-key.js" %}'></script>
+
+<div class="logout-wrapper">
+    To logout click <a href="{% url 'users:logout' %}" class="link">Here</a></p>
+</div>
+
+
+{% endblock %}

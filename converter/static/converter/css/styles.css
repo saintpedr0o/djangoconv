@@ -13,21 +13,27 @@ html, body {
 }
 
 header {
-    background-color: #552d63;
-    padding: 15px 20px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  display: flex;
+  justify-content: space-between;  
+  align-items: center;
+  padding: 10px 20px;
+  background-color: #552d63;
+  padding: 15px 20px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
-nav a {
-    color: white;
-    text-decoration: none;
-    font-weight: bold;
-    font-size: 1.1rem;
-    transition: color 0.3s ease;
+.main-icon-link {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  font-weight: bold;
+  color: #333;
 }
 
-nav a:hover {
-    color: #ffcc00;
+.nav-icon {
+  height: 24px;
+  width: 24px;
+  margin-right: 8px;
 }
 
 /* Main content */
@@ -75,7 +81,6 @@ textarea {
     background-color: #fefefe;
     box-sizing: border-box;
 }
-
 /* Headings */
 .convert-heading {
     font-size: 1.5rem;
@@ -403,4 +408,19 @@ input[type="file"] {
   gap: 20px;
   height: 400px;
   width: 100%;
+}
+
+.link-wrapper {
+    text-align: center;
+}
+
+.link {
+    text-decoration: none;
+    font-size: 1em;
+    color: #552d63;
+    transition: text-decoration 0.3s ease;
+}
+
+.link:hover {
+    text-decoration: underline;
 }

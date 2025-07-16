@@ -12,10 +12,15 @@
 <body>
     <header>
         <nav>
-            <a href="/" class="main-icon-link">
-                <img src="{% static 'converter/favicon.png' %}" alt="Main Icon" class="nav-icon">
-                Converter
-            </a>
+        <a href="{% url 'home' %}" class="main-icon-link">
+            <img src="{% static 'converter/favicon.png' %}" alt="Main Icon" class="nav-icon">
+            Converter
+        </a>
+        </nav>
+        <nav>
+        <a href="{% url 'users:profile' %}" class="main-icon-link">
+            <img src="{% static 'converter/profile_pic.png' %}" alt="Profile Icon" class="nav-icon">
+        </a>
         </nav>
     </header>
 

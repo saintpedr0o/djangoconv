@@ -1,0 +1,38 @@
+{% extends "converter/base.html" %}
+{% load static %}
+
+{% block title %}Register{% endblock %}
+
+{% block content %}
+  <link rel="stylesheet" href="{% static 'users/css/styles.css' %}">
+    <h3 class="convert-heading">Registration</h3>
+
+  <form method="post">
+    {% csrf_token %}
+
+    {% for field in form %}
+      {{ field.label_tag }}
+      {{ field }}
+      {% if field.errors %}
+        <ul class="errorlist">
+          {% for error in field.errors %}
+            <li>{{ error }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    {% endfor %}
+
+    {% if form.non_field_errors %}
+      <ul class="errorlist">
+        {% for error in form.non_field_errors %}
+          <li>{{ error }}</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+
+    <div class="button-wrapper">
+        <button type="submit" class="convert-button">Register</button>
+    </div>
+</form>
+
+{% endblock %}

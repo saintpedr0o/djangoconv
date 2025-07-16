@@ -25,4 +25,6 @@ urlpatterns = [
     path("converter/", include("converter.urls", namespace="converter")),
     path("", RedirectView.as_view(url="/converter/", permanent=True), name="home"),
     path("api/converter/", include("converter.api.urls", namespace="converter_api")),
+    path("users/", include("users.urls", namespace="users")),
+    path("api-key/", include("users.api.urls", namespace="api_key")),
 ]

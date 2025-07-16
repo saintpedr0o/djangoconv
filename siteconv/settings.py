@@ -37,9 +37,10 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "converter.apps.ConverterConfig",
     "celery_progress",
     "rest_framework",
+    "converter.apps.ConverterConfig",
+    "users.apps.UsersConfig",
 ]
 
 MIDDLEWARE = [
@@ -148,4 +149,20 @@ CACHES = {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
         },
     }
+}
+
+AUTHENTICATION_BACKENDS = [
+    "users.authentication.UsernameOrEmailBackend",
+    "django.contrib.auth.backends.ModelBackend",
+]
+
+LOGIN_REDIRECT_URL = "users:profile"
+LOGOUT_REDIRECT_URL = "home"
+LOGIN_URL = "users:login"
+
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "users.api.authentication.APIKeyAuthentication",
+        "rest_framework.authentication.SessionAuthentication",
+    ]
 }
