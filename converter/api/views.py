@@ -8,10 +8,12 @@ from rest_framework.response import Response
 from django.conf import settings
 import mimetypes
 from ..utils.redis_ext_client import redis_client
+from rest_framework.permissions import IsAuthenticated
 
 
 class AsyncConvertView(APIView):
     parser_classes = [MultiPartParser, FormParser]
+    permission_classes = [IsAuthenticated]
 
     def post(self, request):
         file = request.FILES.get("file")
@@ -31,6 +33,8 @@ class AsyncConvertView(APIView):
 
 
 class ResultsConvertView(APIView):
+    permission_classes = [IsAuthenticated]
+
     def get(self, request, token):
         try:
             for file in os.listdir(settings.TEMP_DIR):
