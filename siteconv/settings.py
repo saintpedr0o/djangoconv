@@ -144,7 +144,7 @@ MAX_FORM_FILE_SIZE = 1024 * 1024 * 1024  # 1 GB
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": "redis://127.0.0.1:6379/2",
+        "LOCATION": "redis://localhost:6379/2",
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
         },
